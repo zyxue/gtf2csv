@@ -15,7 +15,7 @@ def parse_attrs(attrs_str):
 
 
 def get_column_names(input_annot):
-    if input_annot.endswith('gtf'):
+    if input_annot.endswith('.gtf'):
         # http://uswest.ensembl.org/info/website/upload/gff.html
         column_names = [
             'seqname', 'source', 'feature', 'start', 'end',
