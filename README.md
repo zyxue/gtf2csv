@@ -1,4 +1,4 @@
-# GTF2CSV
+# GTF2CSV (Bug, cannot handle multiple tags inside one entry)
 
 Converts GTF (aka. GFF2) to CSV for your convenience. May do GFF3 later.
 
