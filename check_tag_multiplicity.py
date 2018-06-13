@@ -2,7 +2,11 @@ import sys
 from collections import Counter
 
 """
-Check what tags in the attribute column could appear multiple times per entry
+Check what tags in the attribute column could appear multiple times per row
+in GTF
+
+Of the two versions of GTF I checked, only the tag "tag" could appear multiple
+times per row
 """
 
 
