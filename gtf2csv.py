@@ -3,56 +3,70 @@ import sys
 import pandas as pd
 
 
-def clean_attr(attr):
-    name, value = attr.split(maxsplit=1)
-    return (name, value.strip('"'))
+def parse_attr(attr):
+    tag, value = attr.split(maxsplit=1)
+    return (tag, value.strip('"'))
 
 
-def parse_attrs(attrs_str):
+def parse_attrs_str(attrs_str):
     # strip: remove last ;
     attrs = attrs_str.strip(';').split(';')
-    return dict([clean_attr(_) for _ in attrs])
+    res = {}
+    for attr in attrs:
+        tag, value = parse_attr(attr)
+        # since there could be multiple tags per row,
+        # e.g. `... tag "cds_end_NF"; tag "mRNA_end_NF";`
+
+        # I verified that only tag is the tag that may appear multiple times
+        # per row, so I decided to use the binary (1/0) columns based on the
+        # value of tag
+        if tag == "tag":
+            res[value] = 1
+        else:
+            res[tag] = value
+    return res
 
 
-def get_column_names(input_annot):
-    if input_annot.endswith('.gtf'):
-        # http://uswest.ensembl.org/info/website/upload/gff.html
-        column_names = [
-            'seqname', 'source', 'feature', 'start', 'end',
-            'score', 'strand', 'frame', 'attribute'
-        ]
-    else:
-        raise ValueError(
-            'cannot decide the columns based on the file '
-            'suffix\n{0}\n, please specify them'.format(input_annot))
-    return column_names
+def read_gtf(filename):
+    cols = [
+        'seqname', 'source', 'feature', 'start', 'end',
+        'score', 'strand', 'frame', 'attribute'
+    ]
+    print('reading {0}...'.format(filename))
+    df = pd.read_csv(
+        filename, header=None, names=cols,
+        sep='\t', comment='#', dtype=str
+    )
+    return df
 
 
-def gtf2df(input_annot, column_names=None):
+def main(filename):
     """
     1. read gtf
     2. extract attributes as separate columns
     3. transform to a pandas dataframe
     """
-    print('reading {0}...'.format(input_annot))
-    if column_names is None:
-        column_names = get_column_names(input_annot)
-    df = pd.read_csv(input_annot, header=None, names=column_names,
-                     sep='\t', comment='#', dtype=str)
+    df = read_gtf(filename)
 
     print('converting to dataframe...'.format(input_annot))
     attr_df = pd.DataFrame.from_dict(
-        df.attribute.apply(parse_attrs).values.tolist())
+        df.attribute.apply(parse_attrs_str).values.tolist())
 
     ndf = pd.concat([df.drop('attribute', axis=1), attr_df], axis=1)
     return ndf
 
 
 if __name__ == "__main__":
-    input_annot = sys.argv[1]
-    output_csv = input_annot.replace('.gtf', '.csv')
+    gtf_path = sys.argv[1]
 
-    ndf = gtf2df(input_annot)
+    if gtf_path.endswith('.gtf'):
+        output_csv = gtf_path.replace('.gtf', '.csv')
+    elif gtf_path.endswith('.gtf.gz'):
+        output_csv = gtf_path.replace('.gtf.gz', '.csv')
+    else:
+        raise ValueError('unknown file extension, must be .gtf or .gtf.gz')
+
+    ndf = main(gtf_path)
 
     print('writing to {0}...'.format(output_csv))
     ndf.to_csv(output_csv, index=False)
