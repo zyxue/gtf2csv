@@ -27,3 +27,7 @@ for k, row in df.iterrows():
             multi_tags.add(t)
     if (k + 1) % 10000 == 0:
         print('processed {0} rows'.format(k + 1))
+
+print("tags with multiplicity > 1 include:\n{0}".format(
+    ' '.join(sorted(multi_tags)))
+)
