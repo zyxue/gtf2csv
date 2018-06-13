@@ -54,6 +54,20 @@ be other tag with multiplicity above 1, you could check them with the
 The only external package needed is [pandas=>0.18.1](http://pandas.pydata.org/),
 whose `read_csv` method could infer compression of input file automatically.
 
+Create a virtual environment:
+
+```
+conda env create --prefix venv -f env-conda.yml
+```
+
+Activate it:
+
+```
+source venv/
+```
+
+Then run
+
 ```
 python gtf2csv.py [prefix].gtf
 ```
@@ -73,12 +87,6 @@ For a brief analysis of the transformed files, please see
 
 
 ### Development
-
-Create a virtual environment:
-
-```
-conda env create --prefix venv -f env-conda.yml
-```
 
 Start the server
 
