@@ -5,7 +5,7 @@ or load it into pandas dataframe for slicing and dicing.
 
 I may do GFF3 later.
 
-# Transformation strategy
+### Transformation strategy
 
 The parsing of GTF is based on GTF/GFF2 format specified at
 http://uswest.ensembl.org/info/website/upload/gff.html.
@@ -24,19 +24,19 @@ each tag into its own column. The only troublesome one is the "tag" tag
 (unfortunate name), which could appear multiple times per row, e.g.
 
 ```
-... gene_biotype "protein_coding"; transcript_name "SAMD11-011"; transcript_source "havana"; exon_id "ENSE00001637883"; tag "cds_end_NF"; tag "mRNA_end_NF";
+... exon_id "ENSE00001637883"; tag "cds_end_NF"; tag "mRNA_end_NF";
 ```
 
 I decided to create a binary (1/0) column for each of its corresponding values,
 which include
 
-1. CCDS
-1. cds_start_NF
-1. cds_end_NF
-1. mRNA_start_NF
-1. mRNA_end_NF
-1. seleno
-1. basic (not appearing in GRCh37.75)
+1. `CCDS`
+1. `cds_start_NF`
+1. `cds_end_NF`
+1. `mRNA_start_NF`
+1. `mRNA_end_NF`
+1. `seleno`
+1. `basic` (not appearing in GRCh37.75)
 
 * seleno means that it contains a selenocysteine.
 * NF means that it could not be confirmed.
@@ -49,17 +49,17 @@ the only tag that could appear multiple times. In other GTF files, there could
 be other tag with multiplicity above 1, you could check them with the
 `check_tag_multiplicity.py` script.
 
-# Usage
+### Usage
 
 The only external package needed is [pandas=>0.18.1](http://pandas.pydata.org/),
 whose `read_csv` method could infer compression of input file automatically.
 
 ```
-python gtf2csv.py [prefix.gtf]
+python gtf2csv.py [prefix].gtf
 ```
 Output will be saved as `[prefix].csv`.
 
-# Transformed Examples
+### Transformed Examples
 
 I have downloaded and transformed two versions of human genome annotations:
 
@@ -72,7 +72,7 @@ For a brief analysis of the transformed files, please see
 [EDA.ipynb](https://github.com/zyxue/gtf2csv/blob/master/EDA.ipynb).
 
 
-# Development
+### Development
 
 Create a virtual environment:
 
