@@ -48,7 +48,7 @@ def main(filename):
     """
     df = read_gtf(filename)
 
-    print('converting to dataframe...'.format(input_annot))
+    print('converting to dataframe...'.format(filename))
     attr_df = pd.DataFrame.from_dict(
         df.attribute.apply(parse_attrs_str).values.tolist())
 
