@@ -75,12 +75,8 @@ Output will be saved as `[prefix].csv`.
 
 ### Transformed Examples
 
-I have downloaded and transformed two versions of human genome annotations:
-
-```
-wget --timestamping http://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz
-wget --timestamping  ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz
-```
+I have downloaded and transformed two versions of human genome annotations in
+the [data](https://github.com/zyxue/gtf2csv/tree/master/data).
 
 For a brief analysis of the transformed files, please see
 [EDA.ipynb](https://github.com/zyxue/gtf2csv/blob/master/EDA.ipynb).
