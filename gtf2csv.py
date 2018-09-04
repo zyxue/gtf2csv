@@ -64,6 +64,16 @@ def get_args():
     return parser.parse_args()
 
 
+def gen_output(input_gtf):
+    if input_gtf.endswith('.gtf'):
+        output_csv = input_gtf.replace('.gtf', '.csv')
+    elif input_gtf.endswith('.gtf.gz'):
+        output_csv = input_gtf.replace('.gtf.gz', '.csv')
+    else:
+        raise ValueError('unknown file extension, must be .gtf or .gtf.gz')
+    return output_csv
+
+
 def main(filename):
     """
     1. read gtf
@@ -86,12 +96,7 @@ if __name__ == "__main__":
 
     output_csv = args.output
     if output_csv is None:
-        if gtf_path.endswith('.gtf'):
-            output_csv = gtf_path.replace('.gtf', '.csv')
-        elif gtf_path.endswith('.gtf.gz'):
-            output_csv = gtf_path.replace('.gtf.gz', '.csv')
-        else:
-            raise ValueError('unknown file extension, must be .gtf or .gtf.gz')
+        output_csv = gen_output(gtf_path)
 
     ndf = main(gtf_path)
 
