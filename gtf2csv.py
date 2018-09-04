@@ -49,6 +49,21 @@ def read_gtf(filename):
     return df
 
 
+def get_args():
+    parser = argparse.ArgumentParser(
+        description='Convert GTF file to plain csv')
+    parser.add_argument(
+        '-f', '--gtf', type=str, required=True,
+        help='the GTF file to convert'
+    )
+    parser.add_argument(
+        '-o', '--output', type=str, default=None,
+        help=('the output filename, if not specified, would just set it to be '
+              'the same as the input but with extension replaced (gtf => csv)')
+    )
+    return parser.parse_args()
+
+
 def main(filename):
     """
     1. read gtf
@@ -63,21 +78,6 @@ def main(filename):
     df.drop('attribute', axis=1, inplace=True)
     ndf = pd.concat([df, attr_df], axis=1)
     return ndf
-
-
-def get_args():
-    parser = argparse.ArgumentParser(
-        description='Convert GTF file to plain csv')
-    parser.add_argument(
-        '-f', '--gtf', type=str, required=True,
-        help='the GTF file to convert'
-    )
-    parser.add_argument(
-        '-o', '--output', type=str, default=None,
-        help=('the output filename, if not specified, would just set it to be '
-              'the same as the input but with extension replaced (gtf => csv)')
-    )
-    return parser.parse_args()
 
 
 if __name__ == "__main__":
