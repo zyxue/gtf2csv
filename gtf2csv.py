@@ -1,4 +1,4 @@
-import sys
+import argparse
 
 import pandas as pd
 
@@ -60,15 +60,33 @@ def main(filename):
     return ndf
 
 
-if __name__ == "__main__":
-    gtf_path = sys.argv[1]
+def get_args():
+    parser = argparse.ArgumentParser(
+        description='Convert GTF file to plain csv')
+    parser.add_argument(
+        '-f', '--gtf', type=str, required=True,
+        help='the GTF file to convert'
+    )
+    parser.add_argument(
+        '-o', '--output', type=str, default=None,
+        help=('the output filename, if not specified, would just set it to be '
+              'the same as the input but with extension replaced (gtf => csv)')
+    )
+    return parser.parse_args()
 
-    if gtf_path.endswith('.gtf'):
-        output_csv = gtf_path.replace('.gtf', '.csv')
-    elif gtf_path.endswith('.gtf.gz'):
-        output_csv = gtf_path.replace('.gtf.gz', '.csv')
-    else:
-        raise ValueError('unknown file extension, must be .gtf or .gtf.gz')
+
+if __name__ == "__main__":
+    args = get_args()
+    gtf_path = args.gtf
+
+    output_csv = args.output
+    if output_csv is None:
+        if gtf_path.endswith('.gtf'):
+            output_csv = gtf_path.replace('.gtf', '.csv')
+        elif gtf_path.endswith('.gtf.gz'):
+            output_csv = gtf_path.replace('.gtf.gz', '.csv')
+        else:
+            raise ValueError('unknown file extension, must be .gtf or .gtf.gz')
 
     ndf = main(gtf_path)
 
