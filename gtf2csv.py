@@ -1,6 +1,11 @@
+import logging
 import argparse
 
 import pandas as pd
+
+
+logging.basicConfig(
+    level=logging.DEBUG, format='%(asctime)s|%(levelname)s|%(message)s')
 
 
 # http://uswest.ensembl.org/info/website/upload/gff.html
@@ -36,7 +41,7 @@ def parse_attrs_str(attrs_str):
 
 
 def read_gtf(filename):
-    print('reading {0}...'.format(filename))
+    logging.info('reading {0}...'.format(filename))
     df = pd.read_csv(
         filename, header=None, names=GTF_COLS,
         sep='\t', comment='#', dtype=str
@@ -52,7 +57,7 @@ def main(filename):
     """
     df = read_gtf(filename)
 
-    print('converting to dataframe...'.format(filename))
+    logging.info('converting to dataframe...'.format(filename))
     attr_df = pd.DataFrame.from_dict(
         df.attribute.apply(parse_attrs_str).values.tolist())
     df.drop('attribute', axis=1, inplace=True)
@@ -95,5 +100,5 @@ if __name__ == "__main__":
     lcol = len(GTF_COLS) - 1  # attribute column is dropped
     sorted_cols = cols[:lcol] + sorted(cols[lcol:])
 
-    print('writing to {0}...'.format(output_csv))
+    logging.info('writing to {0}...'.format(output_csv))
     ndf.to_csv(output_csv, index=False)
