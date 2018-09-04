@@ -122,7 +122,9 @@ def get_multiplicity_tags(df_gtf, num_cpus):
     with multiprocessing.Pool(num_cpus) as p:
         res = p.map(check_multiplicity_per, params)
 
-    return set(i for j in res for i in j)
+    tags = set(i for j in res for i in j)
+    logging.info(f'multiplicity tags found: {tags}')
+    return tags
 
 
 def main(filename, num_cpus):
