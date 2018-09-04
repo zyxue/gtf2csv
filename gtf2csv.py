@@ -148,6 +148,7 @@ if __name__ == "__main__":
     args = get_args()
     gtf_path = args.gtf
     num_cpus = args.num_cpus if args.num_cpus else multiprocessing.cpu_count()
+    logging.info(f'will use {num_cpus} CPUs for parallel processing')
 
     output_csv = args.output
     if output_csv is None:
