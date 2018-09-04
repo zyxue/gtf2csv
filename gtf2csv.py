@@ -52,7 +52,7 @@ def parse_attribute_column(attribute_list, multiplicity_tags, num_cpus):
         params.append((attr_str, multiplicity_tags))
 
     with multiprocessing.Pool(num_cpus) as p:
-        res = p.starmap(parse_attrs_str, params)
+        res = p.starmap(parse_attrs_str, params, chunksize=1000)
     return res
 
 
@@ -120,7 +120,7 @@ def get_multiplicity_tags(df_gtf, num_cpus):
         params.append(row)
 
     with multiprocessing.Pool(num_cpus) as p:
-        res = p.map(check_multiplicity_per, params)
+        res = p.map(check_multiplicity_per, params, chunksize=1000)
 
     tags = set(i for j in res for i in j)
     logging.info(f'multiplicity tags found: {tags}')
