@@ -3,19 +3,45 @@
 Transform GTF/GFF2 to CSV for your convenience, e.g. insert it into a database
 or load it into pandas dataframe for slicing and dicing.
 
-I may do GFF3 later.
 
-### Transformed Examples
+### Install & Usage
 
-I have downloaded and transformed two versions of human genome annotations in
-the [data](https://github.com/zyxue/gtf2csv/tree/master/data).
+require python>=3.6
 
-Here are the first few lines of
-[Homo_sapiens.GRCh38.92.csv.gz](https://github.com/zyxue/gtf2csv/blob/master/data/Homo_sapiens.GRCh38.92.csv.gz)
-(transformed from
-ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz)
-after it's read into a
-[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html):
+```
+virtualenv venv
+. venv/bin/activate
+pip install pandas tqdm
+
+python gtf2csv.py --gtf [input-gtf]
+```
+
+```
+python gtf2csv.py --help
+usage: gtf2csv.py [-h] -f GTF [-o OUTPUT] [-t NUM_CPUS]
+
+Convert GTF file to plain csv
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f GTF, --gtf GTF     the GTF file to convert
+  -o OUTPUT, --output OUTPUT
+                        the output filename, if not specified, would just set
+                        it to be the same as the input but with extension
+                        replaced (gtf => csv)
+  -t NUM_CPUS, --num-cpus NUM_CPUS
+                        number of cpus for parallel processing, default to all
+                        cpus available
+```
+
+
+### Converted files for download 
+
+See converted files in the [data](./data) directory
+
+Example:
+
+Here are the first few lines of converted `Homo_sapiens.GRCh38.92.csv.gz`:
 
 | seqname | source | feature    | start | end   | score | strand | frame | CCDS | basic | ccds_id | cds_end_NF | cds_start_NF | exon_id         | exon_number | exon_version | gene_biotype                       | gene_id         | gene_name | gene_source | gene_version | mRNA_end_NF | mRNA_start_NF | protein_id | protein_version | seleno | transcript_biotype                 | transcript_id   | transcript_name | transcript_source | transcript_support_level | transcript_version |
 |---------|--------|------------|-------|-------|-------|--------|-------|------|-------|---------|------------|--------------|-----------------|-------------|--------------|------------------------------------|-----------------|-----------|-------------|--------------|-------------|---------------|------------|-----------------|--------|------------------------------------|-----------------|-----------------|-------------------|--------------------------|--------------------|
@@ -28,36 +54,6 @@ after it's read into a
 | 1       | havana | exon       | 12010 | 12057 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00001948541 | 1           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | transcribed_unprocessed_pseudogene | ENST00000450305 | DDX11L1-201     | havana            | NA                       | 2                  |
 | 1       | havana | exon       | 12179 | 12227 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00001671638 | 2           | 2            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | transcribed_unprocessed_pseudogene | ENST00000450305 | DDX11L1-201     | havana            | NA                       | 2                  |
 | 1       | havana | exon       | 12613 | 12697 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00001758273 | 3           | 2            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | transcribed_unprocessed_pseudogene | ENST00000450305 | DDX11L1-201     | havana            | NA                       | 2                  |
-
-For a brief analysis of the
-[Homo_sapiens.GRCh37.75.csv.gz](https://github.com/zyxue/gtf2csv/blob/master/data/Homo_sapiens.GRCh37.75.csv.gz)
-, please see
-[EDA.ipynb](https://github.com/zyxue/gtf2csv/blob/master/EDA.ipynb).
-
-
-### Usage
-
-The only external package needed is [pandas=>0.18.1](http://pandas.pydata.org/),
-whose `read_csv` method could infer compression of input file automatically.
-
-Create a virtual environment:
-
-```
-conda env create --prefix venv -f env-conda.yml
-```
-
-Activate it:
-
-```
-source venv/
-```
-
-Then run
-
-```
-python gtf2csv.py [prefix].gtf
-```
-Output will be saved as `[prefix].csv`.
 
 
 ### Transformation strategy
@@ -75,46 +71,21 @@ The first step is straightforward, so is the second step as GTF is tab-separated
 fairly close to a csv file except the attribute column.
 
 The attribute column contain a list of tag-value pairs, so I decided to convert
-each tag into its own column. The only troublesome one is the "tag" tag
-(unfortunate name), which could appear multiple times per row, e.g.
+each tag into its own column. Some atrribute tag could appear multiple times per
+row (e.g. tag, ont)
 
 ```
 ... exon_id "ENSE00001637883"; tag "cds_end_NF"; tag "mRNA_end_NF";
 ```
 
-I decided to create a binary (1/0) column for each of its corresponding values,
-which include
+They would be converted to binary (1/0) columns with the tag name prefixing the
+column name. E.g. the tag values from the above example would be stored in two
+columns, respectively:
 
-1. `CCDS`
-1. `cds_start_NF`
-1. `cds_end_NF`
-1. `mRNA_start_NF`
-1. `mRNA_end_NF`
-1. `seleno`
-1. `basic` (not appearing in GRCh37.75)
-
-* seleno means that it contains a selenocysteine.
-* NF means that it could not be confirmed.
-
-For more details about their meanings, please see
-https://www.gencodegenes.org/gencode_tags.html.
-
-At least for the two annotations I tested on, GRCh37.75 and GRCh38.92, "tag" is
-the only tag that could appear multiple times. In other GTF files, there could
-be other tag with multiplicity above 1, you could check them with the
-`check_tag_multiplicity.py` script.
+1. `tag_cds_end_NF`
+1. `tag_mRNA_end_NF`
 
 
-### Development
+### Other resources
 
-Start the server
-
-```
-jupyter notebook --no-browser --ip 0.0.0.0
-```
-
-Export the virtual environment:
-
-```
-conda env export --prefix venv > env-conda.yml
-```
+For a complete list of tags: https://www.gencodegenes.org/gencode_tags.html
