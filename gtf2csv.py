@@ -173,5 +173,5 @@ if __name__ == "__main__":
     logging.info('writing to {0}...'.format(output))
     if output_format == 'pkl':
         ndf.to_pickle(output)
-    else output_format == 'csv':
+    else:
         ndf.to_csv(output, index=False)
