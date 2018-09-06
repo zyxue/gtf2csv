@@ -36,7 +36,7 @@ def parse_attrs_str(attrs_str, multiplicity_tags):
         tag, value = parse_attr(attr)
         # convert multiplicity_tag into a binary column
         if tag in multiplicity_tags:
-            res[f'{tag}_{value}'] = 1
+            res[f'{tag}:{value}'] = 1
         else:
             res[tag] = value
     return res
