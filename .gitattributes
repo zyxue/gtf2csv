@@ -1,2 +1,1 @@
-examples/Homo_sapiens.GRCh37.75.csv.gz filter=lfs diff=lfs merge=lfs -text
-examples/Homo_sapiens.GRCh38.92.csv.gz filter=lfs diff=lfs merge=lfs -text
+download/**/*.csv.gz filter=lfs diff=lfs merge=lfs -text
