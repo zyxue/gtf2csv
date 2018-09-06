@@ -18,7 +18,7 @@ python gtf2csv.py --gtf [input-gtf]
 
 ```
 python gtf2csv.py --help
-usage: gtf2csv.py [-h] -f GTF [-o OUTPUT] [-t NUM_CPUS]
+usage: gtf2csv.py [-h] -f GTF [-o OUTPUT] [-m {csv,pkl}] [-t NUM_CPUS]
 
 Convert GTF file to plain csv
 
@@ -29,6 +29,9 @@ optional arguments:
                         the output filename, if not specified, would just set
                         it to be the same as the input but with extension
                         replaced (gtf => csv)
+  -m {csv,pkl}, --output-format {csv,pkl}
+                        pkl means python pickle format, which would results in
+                        much faster IO (recommended)
   -t NUM_CPUS, --num-cpus NUM_CPUS
                         number of cpus for parallel processing, default to all
                         cpus available
