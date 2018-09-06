@@ -37,23 +37,19 @@ optional arguments:
 
 ### Converted files for download 
 
-See converted files in the [data](./data) directory
+I have converted some GTF files in the [download](./download) directory
 
 Example:
 
-Here are the first few lines of converted `Homo_sapiens.GRCh38.92.csv.gz`:
+Here are the first few lines of converted [Homo_sapiens.GRCh38.93.csv.gz](./download/ensembl):
 
-| seqname | source | feature    | start | end   | score | strand | frame | CCDS | basic | ccds_id | cds_end_NF | cds_start_NF | exon_id         | exon_number | exon_version | gene_biotype                       | gene_id         | gene_name | gene_source | gene_version | mRNA_end_NF | mRNA_start_NF | protein_id | protein_version | seleno | transcript_biotype                 | transcript_id   | transcript_name | transcript_source | transcript_support_level | transcript_version |
-|---------|--------|------------|-------|-------|-------|--------|-------|------|-------|---------|------------|--------------|-----------------|-------------|--------------|------------------------------------|-----------------|-----------|-------------|--------------|-------------|---------------|------------|-----------------|--------|------------------------------------|-----------------|-----------------|-------------------|--------------------------|--------------------|
-| 1       | havana | gene       | 11869 | 14409 | .     | +      | .     |      |       |         |            |              |                 |             |              | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        |                                    |                 |                 |                   |                          |                    |
-| 1       | havana | transcript | 11869 | 14409 | .     | +      | .     |      | 1.0   |         |            |              |                 |             |              | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | processed_transcript               | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
-| 1       | havana | exon       | 11869 | 12227 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00002234944 | 1           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | processed_transcript               | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
-| 1       | havana | exon       | 12613 | 12721 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00003582793 | 2           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | processed_transcript               | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
-| 1       | havana | exon       | 13221 | 14409 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00002312635 | 3           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | processed_transcript               | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
-| 1       | havana | transcript | 12010 | 13670 | .     | +      | .     |      | 1.0   |         |            |              |                 |             |              | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | transcribed_unprocessed_pseudogene | ENST00000450305 | DDX11L1-201     | havana            | NA                       | 2                  |
-| 1       | havana | exon       | 12010 | 12057 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00001948541 | 1           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | transcribed_unprocessed_pseudogene | ENST00000450305 | DDX11L1-201     | havana            | NA                       | 2                  |
-| 1       | havana | exon       | 12179 | 12227 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00001671638 | 2           | 2            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | transcribed_unprocessed_pseudogene | ENST00000450305 | DDX11L1-201     | havana            | NA                       | 2                  |
-| 1       | havana | exon       | 12613 | 12697 | .     | +      | .     |      | 1.0   |         |            |              | ENSE00001758273 | 3           | 2            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |             |               |            |                 |        | transcribed_unprocessed_pseudogene | ENST00000450305 | DDX11L1-201     | havana            | NA                       | 2                  |
+| index | seqname | source | feature    | start | end   | score | strand | frame | ccds_id | exon_id         | exon_number | exon_version | gene_biotype                       | gene_id         | gene_name | gene_source | gene_version | protein_id | protein_version | tag:CCDS | tag:basic | tag:cds_end_NF | tag:cds_start_NF | tag:mRNA_end_NF | tag:mRNA_start_NF | tag:seleno | transcript_biotype   | transcript_id   | transcript_name | transcript_source | transcript_support_level | transcript_version |
+|-------|---------|--------|------------|-------|-------|-------|--------|-------|---------|-----------------|-------------|--------------|------------------------------------|-----------------|-----------|-------------|--------------|------------|-----------------|----------|-----------|----------------|------------------|-----------------|-------------------|------------|----------------------|-----------------|-----------------|-------------------|--------------------------|--------------------|
+| 0     | 1       | havana | gene       | 11869 | 14409 | .     | +      | .     |         |                 |             |              | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |            |                 |          |           |                |                  |                 |                   |            |                      |                 |                 |                   |                          |                    |
+| 1     | 1       | havana | transcript | 11869 | 14409 | .     | +      | .     |         |                 |             |              | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |            |                 |          | 1         |                |                  |                 |                   |            | processed_transcript | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
+| 2     | 1       | havana | exon       | 11869 | 12227 | .     | +      | .     |         | ENSE00002234944 | 1           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |            |                 |          | 1         |                |                  |                 |                   |            | processed_transcript | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
+| 3     | 1       | havana | exon       | 12613 | 12721 | .     | +      | .     |         | ENSE00003582793 | 2           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |            |                 |          | 1         |                |                  |                 |                   |            | processed_transcript | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
+| 4     | 1       | havana | exon       | 13221 | 14409 | .     | +      | .     |         | ENSE00002312635 | 3           | 1            | transcribed_unprocessed_pseudogene | ENSG00000223972 | DDX11L1   | havana      | 5            |            |                 |          | 1         |                |                  |                 |                   |            | processed_transcript | ENST00000456328 | DDX11L1-202     | havana            | 1                        | 2                  |
 
 
 ### Transformation strategy
@@ -71,8 +67,8 @@ The first step is straightforward, so is the second step as GTF is tab-separated
 fairly close to a csv file except the attribute column.
 
 The attribute column contain a list of tag-value pairs, so I decided to convert
-each tag into its own column. Some atrribute tag could appear multiple times per
-row (e.g. tag, ont)
+each tag into its own column under the name ([tag]:[value]). Some atrribute tag
+could appear multiple times per row (e.g. tag, ont)
 
 ```
 ... exon_id "ENSE00001637883"; tag "cds_end_NF"; tag "mRNA_end_NF";
@@ -82,8 +78,30 @@ They would be converted to binary (1/0) columns with the tag name prefixing the
 column name. E.g. the tag values from the above example would be stored in two
 columns, respectively:
 
-1. `tag_cds_end_NF`
-1. `tag_mRNA_end_NF`
+1. `tag:cds_end_NF`
+1. `tag:mRNA_end_NF`
+
+
+### Comparison of GTF versions
+
+After converting the GTF versions into csv format, I did a quick comparison.
+Interestingly, the early version of annotation, Homo_sapiens.GRCh37.75.pkl, has
+many more genes and transcripts than later ones, (~14% and ~9.7% increase in
+numbers for protein coding gene and transcripts, respectively when compared to
+Homo_sapiens.GRCh38.93.pkl. Below are more details. For the generation of the
+table of figures, please refere to this
+[notebook](./notebooks/Comparison-of-GTF-versions.ipynb).
+
+
+| index | version                    | num_protein_coding_genes | num_protein_coding_transcripts | num_all_genes | num_all_transcripts |
+|-------|----------------------------|--------------------------|--------------------------------|---------------|---------------------|
+| 0     | Homo_sapiens.GRCh37.75.pkl | 22810                    | 90274                          | 63677         | 215171              |
+| 1     | Homo_sapiens.GRCh37.87.pkl | 20356                    | 81787                          | 57905         | 196502              |
+| 2     | Homo_sapiens.GRCh38.92.pkl | 19912                    | 82307                          | 58395         | 203743              |
+| 3     | Homo_sapiens.GRCh38.93.pkl | 19912                    | 82307                          | 58395         | 203743              |
+| 4     | gencode.v28.annotation.pkl | 19901                    | 82335                          | 58381         | 203836              |
+
+<img src="https://raw.githubusercontent.com/zyxue/gtf2csv/master/gtf-comparison.jpg" width=600>
 
 
 ### Other resources

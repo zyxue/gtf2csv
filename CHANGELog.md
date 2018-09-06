@@ -1,3 +1,8 @@
+# v0.2
+
+* first release
+* enabled output format in python pickle format
+
 # v0.1
 
 * parallel processing
