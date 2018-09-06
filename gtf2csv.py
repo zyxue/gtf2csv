@@ -78,17 +78,22 @@ def get_args():
               'the same as the input but with extension replaced (gtf => csv)')
     )
     parser.add_argument(
+        '-m', '--output-format', type=str, default='csv', choices=['csv', 'pkl'],
+        help=('pkl means python pickle format, which would results in much faster IO (recommended)')
+    )
+
+    parser.add_argument(
         '-t', '--num-cpus', type=int,
         help='number of cpus for parallel processing, default to all cpus available'
     )
     return parser.parse_args()
 
 
-def gen_output(input_gtf):
+def gen_output(input_gtf, output_format):
     if input_gtf.endswith('.gtf'):
-        output_csv = input_gtf.replace('.gtf', '.csv')
+        output_csv = input_gtf.replace('.gtf', f'.{output_format}')
     elif input_gtf.endswith('.gtf.gz'):
-        output_csv = input_gtf.replace('.gtf.gz', '.csv')
+        output_csv = input_gtf.replace('.gtf.gz', f'.{output_format}')
     else:
         raise ValueError('unknown file extension, must be .gtf or .gtf.gz')
     return output_csv
@@ -152,9 +157,11 @@ if __name__ == "__main__":
     num_cpus = args.num_cpus if args.num_cpus else multiprocessing.cpu_count()
     logging.info(f'will use {num_cpus} CPUs for parallel processing')
 
-    output_csv = args.output
-    if output_csv is None:
-        output_csv = gen_output(gtf_path)
+    output = args.output
+    output_format = args.output_format
+
+    if output is None:
+        output = gen_output(gtf_path, output_format)
 
     ndf = main(gtf_path, num_cpus)
 
@@ -163,5 +170,8 @@ if __name__ == "__main__":
     lcol = len(GTF_COLS) - 1  # attribute column is dropped
     sorted_cols = cols[:lcol] + sorted(cols[lcol:])
 
-    logging.info('writing to {0}...'.format(output_csv))
-    ndf.to_csv(output_csv, index=False)
+    logging.info('writing to {0}...'.format(output))
+    if output_format == 'pkl':
+        ndf.to_pickle(output)
+    else output_format == 'csv':
+        ndf.to_csv(output, index=False)
