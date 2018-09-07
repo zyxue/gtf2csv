@@ -62,6 +62,9 @@ def read_gtf(filename):
         filename, header=None, names=GTF_COLS,
         sep='\t', comment='#', dtype=str
     )
+    # not sure why it could ends with dtype 'O', enforce them to be int
+    for c in ['start', 'end']:
+        df[c] = df[c].astype(int)
     return df
 
 
