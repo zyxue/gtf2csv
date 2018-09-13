@@ -10,7 +10,7 @@ https://gitlab.com/zyxue/gtf2csv-csvs.
 
 Example:
 
-Here are the first few lines of converted [Homo_sapiens.GRCh38.93.csv.gz](./download/ensembl**:
+Here are the first few lines of converted [Homo_sapiens.GRCh38.93.csv.gz](./download/ensembl):
 
 | index | seqname | source | feature    | start | end   | score | strand | frame | ccds_id | exon_id         | exon_number | exon_version | gene_biotype                       | gene_id         | gene_name | gene_source | gene_version | protein_id | protein_version | tag:CCDS | tag:basic | tag:cds_end_NF | tag:cds_start_NF | tag:mRNA_end_NF | tag:mRNA_start_NF | tag:seleno | transcript_biotype   | transcript_id   | transcript_name | transcript_source | transcript_support_level | transcript_version |
 |-------|---------|--------|------------|-------|-------|-------|--------|-------|---------|-----------------|-------------|--------------|------------------------------------|-----------------|-----------|-------------|--------------|------------|-----------------|----------|-----------|----------------|------------------|-----------------|-------------------|------------|----------------------|-----------------|-----------------|-------------------|--------------------------|--------------------|
@@ -53,6 +53,63 @@ optional arguments:
                         cpus available
 ```
 
+### Comparison of GTF versions
+
+I converted most ensemebl gtf releases and compared them from different aspects
+([notebook](https://github.com/zyxue/gtf2csv/blob/master/notebooks/Comparison-of-GTF-versions-all-Ensembl-releases.ipynb)).
+
+**Number of protein coding genes**
+
+A gene is considered protein coding if at least one its transcripts is protein
+coding. The number has been relatively stable around 20k for a long time.
+
+
+<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/figs/num_protein_coding_genes.jpg" alt width="100%">
+
+
+Different colors indicate major genome update, i.e. GRCh36/hg18 (blue),
+GRCh37/hg19 (red), GRCh38/hg38 (yellow).
+
+
+**Number of protein coding transcripts**
+
+Considering the current number is 80k, so on average a gene has 4 protein coding
+transcripts.
+
+<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/figs/transcripts/protein_coding_transcripts.jpg" alt width="100%">
+
+
+**Number of lincRNA**
+
+<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/figs/transcripts/lincRNA_transcripts.jpg" alt width="100%">
+
+As seen, lincRNA hasn't been annotated until around GRCh37.57 (2010-03 based on
+https://www.gencodegenes.org/releases/).
+
+For all available transcript types, please see
+https://gitlab.com/zyxue/gtf2csv-csvs/tree/master/figs.
+
+**More detailed comparison of a few select versions**
+
+The early version of annotation, Homo_sapiens.GRCh37.75.pkl, has many more genes
+and transcripts than later ones, (~14% and ~9.7% increase in numbers for protein
+coding gene and transcripts, respectively when compared to
+Homo_sapiens.GRCh38.93.pkl. Below are more details. For the generation of the
+table of figures, please refere to this
+[notebook](./notebooks/Comparison-of-GTF-versions.ipynb).
+
+
+| index | version                    | num_protein_coding_genes | num_protein_coding_transcripts | num_all_genes | num_all_transcripts |
+|-------|----------------------------|--------------------------|--------------------------------|---------------|---------------------|
+| 0     | Homo_sapiens.GRCh37.75.pkl | 22810                    | 90274                          | 63677         | 215171              |
+| 1     | Homo_sapiens.GRCh37.87.pkl | 20356                    | 81787                          | 57905         | 196502              |
+| 2     | Homo_sapiens.GRCh38.92.pkl | 19912                    | 82307                          | 58395         | 203743              |
+| 3     | Homo_sapiens.GRCh38.93.pkl | 19912                    | 82307                          | 58395         | 203743              |
+| 4     | gencode.v28.annotation.pkl | 19901                    | 82335                          | 58381         | 203836              |
+
+<img src="https://raw.githubusercontent.com/zyxue/gtf2csv/master/gtf-comparison.jpg" alt="" width=600>
+
+
 ### Conversion strategy
 
 The parsing of GTF is based on GTF/GFF2 format specified at
@@ -81,28 +138,6 @@ columns, respectively:
 
 1. `tag:cds_end_NF`
 1. `tag:mRNA_end_NF`
-
-
-### Comparison of GTF versions
-
-After converting the GTF versions into csv format, I did a quick comparison.
-Interestingly, the early version of annotation, Homo_sapiens.GRCh37.75.pkl, has
-many more genes and transcripts than later ones, (~14% and ~9.7% increase in
-numbers for protein coding gene and transcripts, respectively when compared to
-Homo_sapiens.GRCh38.93.pkl. Below are more details. For the generation of the
-table of figures, please refere to this
-[notebook](./notebooks/Comparison-of-GTF-versions.ipynb).
-
-
-| index | version                    | num_protein_coding_genes | num_protein_coding_transcripts | num_all_genes | num_all_transcripts |
-|-------|----------------------------|--------------------------|--------------------------------|---------------|---------------------|
-| 0     | Homo_sapiens.GRCh37.75.pkl | 22810                    | 90274                          | 63677         | 215171              |
-| 1     | Homo_sapiens.GRCh37.87.pkl | 20356                    | 81787                          | 57905         | 196502              |
-| 2     | Homo_sapiens.GRCh38.92.pkl | 19912                    | 82307                          | 58395         | 203743              |
-| 3     | Homo_sapiens.GRCh38.93.pkl | 19912                    | 82307                          | 58395         | 203743              |
-| 4     | gencode.v28.annotation.pkl | 19901                    | 82335                          | 58381         | 203836              |
-
-<img src="https://raw.githubusercontent.com/zyxue/gtf2csv/master/gtf-comparison.jpg" width=600>
 
 
 ### Other resources
