@@ -74,7 +74,7 @@ def main():
     if output is None:
         output = gen_output(args.gtf, args.output_format)
 
-    ndf = main(args.gtf, args.num_cpus, args.cardinality_cutoff, gtf_cols)
+    ndf = gtf2csv(args.gtf, args.num_cpus, args.cardinality_cutoff, gtf_cols)
 
     # sort attribute columns without reordering gtf_cols
     cols = ndf.columns.tolist()
@@ -83,7 +83,7 @@ def main():
 
     logging.info(f'writing to {output} ...')
     if args.output_format == 'pkl':
-        ndf.to_pickle(output)
+        ndf.to_pickle(output[sorted_cols])
     else:
         ndf.to_csv(output, index=False)
 
