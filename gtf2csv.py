@@ -1,66 +1,25 @@
 import logging
 import multiprocessing
-from collections import Counter
-import argparse
 
-from tqdm import tqdm
 import pandas as pd
+
+from args import get_args
+from parsers import (
+    get_multiplicity_tags,
+    classify_multiplicity_tags,
+    parse_attribute_column
+)
+import utils as U
 
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s|%(levelname)s|%(message)s')
 
 
-# http://uswest.ensembl.org/info/website/upload/gff.html
-GTF_COLS = [
-    'seqname', 'source', 'feature', 'start',
-    'end', 'score', 'strand', 'frame',
-    'attribute'
-]
-
-
-def parse_attr(attr):
-    tag, value = attr.split(maxsplit=1)
-    return (tag, value.strip('"'))
-
-
-def parse_attrs_str(attrs_str, multiplicity_tags):
-    """
-    :params multiplicity_tags: a set of tags potentially appearing multiple
-    times in one GTF entry
-    """
-    # strip: remove last ;
-    attrs = attrs_str.strip(';').split(';')
-    res = {}
-    for attr in attrs:
-        tag, value = parse_attr(attr)
-        # convert multiplicity_tag into a binary column
-        if tag in multiplicity_tags:
-            res[f'{tag}:{value}'] = 1
-        else:
-            res[tag] = value
-    return res
-
-
-def parse_attribute_column(attribute_list, multiplicity_tags, num_cpus):
-    """
-    :params attribute_series: a list of values for the GTF attribute column
-    """
-    params = []
-    # TODO: parallelized but could be memory intensive
-    for attr_str in attribute_list:
-        params.append((attr_str, multiplicity_tags))
-
-    with multiprocessing.Pool(num_cpus) as p:
-        res = p.starmap(parse_attrs_str, params, chunksize=1000)
-    return res
-
-
-def read_gtf(filename):
-    logging.info('reading {0}...'.format(filename))
+@U.timeit
+def read_gtf(filename, cols):
+    logging.info(f'reading {filename} ...')
     # http://uswest.ensembl.org/info/website/upload/gff.html
-    cols = ['seqname', 'source', 'feature', 'start',
-            'end', 'score', 'strand', 'frame', 'attribute']
     df = pd.read_csv(
         filename, header=None, names=cols,
         sep='\t', comment='#', dtype=str
@@ -69,30 +28,6 @@ def read_gtf(filename):
     for c in ['start', 'end']:
         df[c] = df[c].astype(int)
     return df
-
-
-def get_args():
-    parser = argparse.ArgumentParser(
-        description='Convert GTF file to plain csv')
-    parser.add_argument(
-        '-f', '--gtf', type=str, required=True,
-        help='the GTF file to convert'
-    )
-    parser.add_argument(
-        '-o', '--output', type=str, default=None,
-        help=('the output filename, if not specified, would just set it to be '
-              'the same as the input but with extension replaced (gtf => csv)')
-    )
-    parser.add_argument(
-        '-m', '--output-format', type=str, default='csv', choices=['csv', 'pkl'],
-        help=('pkl means python pickle format, which would results in much faster IO (recommended)')
-    )
-
-    parser.add_argument(
-        '-t', '--num-cpus', type=int,
-        help='number of cpus for parallel processing, default to all cpus available'
-    )
-    return parser.parse_args()
 
 
 def gen_output(input_gtf, output_format):
@@ -105,79 +40,49 @@ def gen_output(input_gtf, output_format):
     return output_csv
 
 
-def check_multiplicity_per(row):
-    res = []
-    attrs_str = row.attribute
-    attrs = attrs_str.strip(';').split(';')
-    tags = []
-    for attr in attrs:
-        tag, value = parse_attr(attr)
-        tags.append(tag)
-    count_dd = Counter(tags)
-    for t, n in count_dd.items():
-        if n > 1:
-            res.append(t)
-    return res
-
-
-def get_multiplicity_tags(df_gtf, num_cpus):
-    """
-    check which tags could appear multiple values in the attribute column of
-    one gtf entry (e.g. ont, tag)
-    """
-    params = []
-    # TODO: parallelized but could be memory intensive
-    for k, row in tqdm(df_gtf.iterrows()):
-        params.append(row)
-
-    with multiprocessing.Pool(num_cpus) as p:
-        res = p.map(check_multiplicity_per, params, chunksize=1000)
-
-    tags = set(i for j in res for i in j)
-    logging.info(f'multiplicity tags found: {tags}')
-    return tags
-
-
-def main(filename, num_cpus):
+def main(filename, num_cpus, cardinality_cutoff, gtf_cols):
     """
     1. read gtf
     2. extract attributes as separate columns
     3. transform to a pandas dataframe
     """
-    df = read_gtf(filename)
-    mlp_tags = get_multiplicity_tags(df, num_cpus)
+    df = read_gtf(filename, gtf_cols)
 
-    parsed = parse_attribute_column(df.attribute.values, mlp_tags, num_cpus)
+    mlp_tags = get_multiplicity_tags(df.attribute.values, num_cpus)
+
+    lc_tags, hc_tags = classify_multiplicity_tags(
+        df.attribute.values, mlp_tags, cardinality_cutoff, num_cpus)
+
+    attr_parsed = parse_attribute_column(
+        df.attribute.values, lc_tags, hc_tags, num_cpus)
 
     logging.info('converting to dataframe...'.format(filename))
-    attr_df = pd.DataFrame.from_dict(parsed)
+    attr_df = U.timeit(pd.DataFrame.from_dict)(attr_parsed)
 
     df.drop('attribute', axis=1, inplace=True)
-    ndf = pd.concat([df, attr_df], axis=1)
-    return ndf
+    out_df = U.timeit(pd.concat)([df, attr_df], axis=1)
+    return out_df
 
 
 if __name__ == "__main__":
     args = get_args()
-    gtf_path = args.gtf
-    num_cpus = args.num_cpus if args.num_cpus else multiprocessing.cpu_count()
-    logging.info(f'will use {num_cpus} CPUs for parallel processing')
+    logging.info(f'will use {args.num_cpus} CPUs for parallel processing')
 
+    gtf_cols = ['seqname', 'source', 'feature', 'start',
+                'end', 'score', 'strand', 'frame', 'attribute']
     output = args.output
-    output_format = args.output_format
-
     if output is None:
-        output = gen_output(gtf_path, output_format)
+        output = gen_output(args.gtf, args.output_format)
 
-    ndf = main(gtf_path, num_cpus)
+    ndf = main(args.gtf, args.num_cpus, args.cardinality_cutoff, gtf_cols)
 
-    # sort attribute columns without reordering GTF_COLS
+    # sort attribute columns without reordering gtf_cols
     cols = ndf.columns.tolist()
-    lcol = len(GTF_COLS) - 1  # attribute column is dropped
-    sorted_cols = cols[:lcol] + sorted(cols[lcol:])
+    ncols = len(gtf_cols) - 1    # attribute column is dropped
+    sorted_cols = cols[:ncols] + sorted(cols[ncols:])
 
-    logging.info('writing to {0}...'.format(output))
-    if output_format == 'pkl':
+    logging.info(f'writing to {output} ...')
+    if args.output_format == 'pkl':
         ndf.to_pickle(output)
     else:
         ndf.to_csv(output, index=False)

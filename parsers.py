@@ -28,7 +28,7 @@ def get_multiplicity_tags(attributes, num_cpus):
     check which tags could appear multiple times per row in the attribute
     column
     """
-    logger.info('first pass of gtf to obtain multiplicity tags ...')
+    logger.info('1st pass of gtf to obtain multiplicity tags ...')
 
     with multiprocessing.Pool(num_cpus) as p:
         res = p.map(check_multiplicity, attributes, chunksize=10000)
@@ -72,12 +72,15 @@ def do_classification(val_set_dd, card_cutoff):
         else:
             hc_tags.append((tag, card))
 
-    logger.info(f'{len(lc_tags)} low-cardinality tags found: {lc_tags} ' +
-                f'{len(hc_tags)} high-cardinality tags found: {hc_tags}\n')
+    logger.info((
+        f'{len(lc_tags)} low-cardinality tags found: {lc_tags} '
+        f'{len(hc_tags)} high-cardinality tags found: {hc_tags}'
+    ))
 
     # remove cardinality information
-    hc_tags = [_[0] for _ in hc_tags]
     lc_tags = [_[0] for _ in lc_tags]
+    hc_tags = [_[0] for _ in hc_tags]
+    return lc_tags, hc_tags
 
 
 @U.timeit
@@ -88,10 +91,10 @@ def classify_multiplicity_tags(attributes, mlp_tags, cardinality_cutoff, num_cpu
     low-caridnaltiy tags (multiplicity <= cardinality_cutoff) and
     high-cardinality tags (multiplicity > cardinality_cutoff)
     """
-    logger.info('second pass of gtf to classify multiplicity tags into low- and high-cardinality tags ...')
+    logger.info('2nd pass of gtf to classify multiplicity tags into low- and high-cardinality tags ...')
     val_set_dd =  collect_mlp_tag_val_set(attributes, mlp_tags, num_cpus)
-    hc_tags, lc_tags = do_classification(val_set_dd, cardinality_cutoff)
-    return hc_tags, lc_tags
+    lc_tags, hc_tags = do_classification(val_set_dd, cardinality_cutoff)
+    return lc_tags, hc_tags
 
 
 def parse_attr(attr):
@@ -99,34 +102,44 @@ def parse_attr(attr):
     return (tag, value.strip('"'))
 
 
-def parse_attrs_str(attrs_str, multiplicity_tags):
+def parse_attrs_str(attrs_str, lc_tags, hc_tags):
     """
-    :params multiplicity_tags: a set of tags potentially appearing multiple
-    times in one GTF entry
+    "parse a the attribute string for single row
+
+    :params lc_tags: low-cardinality multiplicity tags
+    :params hc_tags: high-cardinality multiplicity tags
     """
-    # strip: remove last ;
+    # strip: remove last ';'
     attrs = attrs_str.strip(';').split(';')
     res = {}
     for attr in attrs:
-        tag, value = parse_attr(attr)
-        # convert multiplicity_tag into a binary column
-        if tag in multiplicity_tags:
-            res[f'{tag}:{value}'] = 1
+        tag, val = parse_attr(attr)
+        if tag in lc_tags:
+            # convert multiplicity_tag into a binary column
+            res[f'{tag}:{val}'] = 1
+        elif tag in hc_tags:
+            if tag not in res:
+                res[tag] = [val]
+            else:
+                res[tag].append(val)
         else:
-            res[tag] = value
+            res[tag] = val
+
+    # for high-cardinality tags: join list into string
+    for t in hc_tags:
+        if t in res:
+            res[t] = ','.join(res[t])
     return res
 
 
-def parse_attribute_column(attribute_list, multiplicity_tags, num_cpus):
+@U.timeit
+def parse_attribute_column(attributes, lc_tags, hc_tags, num_cpus):
     """
     :params attribute_series: a list of values for the GTF attribute column
     """
-    params = []
-    # TODO: parallelized but could be memory intensive
-    for attr_str in attribute_list:
-        params.append((attr_str, multiplicity_tags))
-
+    logger.info('3rd pass of gtf to parse the attribute column and convert it into a dataframe ...')
+    num = len(attributes)
+    params = zip(attributes, [lc_tags] * num, [hc_tags] * num)
     with multiprocessing.Pool(num_cpus) as p:
-        res = p.starmap(parse_attrs_str, params, chunksize=1000)
+        res = p.starmap(parse_attrs_str, params, chunksize=20000)
     return res
-
