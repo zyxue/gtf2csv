@@ -79,12 +79,13 @@ def main():
     cols = ndf.columns.tolist()
     ncols = len(gtf_cols) - 1    # attribute column is dropped
     sorted_cols = cols[:ncols] + sorted(cols[ncols:])
+    odf = ndf[sorted_cols]
 
     logging.info(f'writing to {output} ...')
     if args.output_format == 'pkl':
-        ndf.to_pickle(output[sorted_cols])
+        odf.to_pickle(output)
     else:
-        ndf.to_csv(output, index=False)
+        odf.to_csv(output, index=False)
 
 
 if __name__ == "__main__":
