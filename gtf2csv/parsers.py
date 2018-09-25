@@ -3,7 +3,7 @@ import multiprocessing
 
 from collections import Counter, defaultdict
 
-import utils as U
+import gtf2csv.utils as U
 
 logger = logging.getLogger(__name__)
 

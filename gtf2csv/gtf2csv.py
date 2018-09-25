@@ -3,13 +3,13 @@ import multiprocessing
 
 import pandas as pd
 
-from args import get_args
-from parsers import (
+from gtf2csv.args import get_args
+from gtf2csv.parsers import (
     get_multiplicity_tags,
     classify_multiplicity_tags,
     parse_attribute_column
 )
-import utils as U
+import gtf2csv.utils as U
 
 
 logging.basicConfig(
@@ -40,7 +40,7 @@ def gen_output(input_gtf, output_format):
     return output_csv
 
 
-def main(filename, num_cpus, cardinality_cutoff, gtf_cols):
+def gtf2csv(filename, num_cpus, cardinality_cutoff, gtf_cols):
     """
     1. read gtf
     2. extract attributes as separate columns
@@ -64,7 +64,7 @@ def main(filename, num_cpus, cardinality_cutoff, gtf_cols):
     return out_df
 
 
-if __name__ == "__main__":
+def main():
     args = get_args()
     logging.info(f'will use {args.num_cpus} CPUs for parallel processing')
 
@@ -86,3 +86,7 @@ if __name__ == "__main__":
         ndf.to_pickle(output)
     else:
         ndf.to_csv(output, index=False)
+
+
+if __name__ == "__main__":
+    main()
