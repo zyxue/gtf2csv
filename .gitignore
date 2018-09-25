@@ -1,6 +1,7 @@
 .cache
 __pycache__
 .ipynb_checkpoints
+.eggs
 venv
 
 data
@@ -9,3 +10,6 @@ data
 *.gtf.sorted.gz
 *.gtf.sorted.gz.tbi
 *.pkl
+
+debug.ipynb
+lele*
