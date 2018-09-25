@@ -73,7 +73,7 @@ def do_classification(val_set_dd, card_cutoff):
             hc_tags.append((tag, card))
 
     logger.info((
-        f'{len(lc_tags)} low-cardinality tags found: {lc_tags} '
+        f'{len(lc_tags)} low-cardinality tags found: {lc_tags}; '
         f'{len(hc_tags)} high-cardinality tags found: {hc_tags}'
     ))
 
