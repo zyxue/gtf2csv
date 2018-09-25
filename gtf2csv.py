@@ -58,8 +58,11 @@ def parse_attribute_column(attribute_list, multiplicity_tags, num_cpus):
 
 def read_gtf(filename):
     logging.info('reading {0}...'.format(filename))
+    # http://uswest.ensembl.org/info/website/upload/gff.html
+    cols = ['seqname', 'source', 'feature', 'start',
+            'end', 'score', 'strand', 'frame', 'attribute']
     df = pd.read_csv(
-        filename, header=None, names=GTF_COLS,
+        filename, header=None, names=cols,
         sep='\t', comment='#', dtype=str
     )
     # not sure why it could ends with dtype 'O', enforce them to be int
