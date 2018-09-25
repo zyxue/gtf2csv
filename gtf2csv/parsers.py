@@ -128,7 +128,7 @@ def parse_attrs_str(attrs_str, lc_tags, hc_tags):
     # for high-cardinality tags: join list into string
     for t in hc_tags:
         if t in res:
-            res[t] = ','.join(res[t])
+            res[t] = ','.join(sorted(res[t]))
     return res
 
 
