@@ -29,7 +29,7 @@ def get_args():
 
     parser.add_argument(
         '-m', '--output-format', type=str, default='csv', choices=['csv', 'pkl'],
-        help=('pkl means python pickle format, which would results in much faster IO (recommended)')
+        help=('default to csv, but pkl (python pickle format) is much faster in IO, thus recommended')
     )
 
     parser.add_argument(
