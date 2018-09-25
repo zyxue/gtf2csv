@@ -25,22 +25,33 @@ Here are the first few lines of converted [Homo_sapiens.GRCh38.93.csv.gz](./down
 require python>=3.6
 
 ```
-virtualenv venv
-. venv/bin/activate
-pip install pandas tqdm
+pip install git+https://github.com/zyxue/gtf2csv.git#egg=gtf2csv
 
-python gtf2csv.py --gtf [input-gtf]
-```
+gtf2csv --gtf [gtf file]
 
 ```
-python gtf2csv.py --help
-usage: gtf2csv.py [-h] -f GTF [-o OUTPUT] [-m {csv,pkl}] [-t NUM_CPUS]
+
+```
+gtf2csv -h
+usage: gtf2csv [-h] -f GTF [-c CARDINALITY_CUTOFF] [-o OUTPUT] [-m {csv,pkl}]
+               [-t NUM_CPUS]
 
 Convert GTF file to plain csv
 
 optional arguments:
   -h, --help            show this help message and exit
   -f GTF, --gtf GTF     the GTF file to convert
+  -c CARDINALITY_CUTOFF, --cardinality-cutoff CARDINALITY_CUTOFF
+                        for a tag that may appear multiple times in the
+                        attribute column (so-called multiplicity tag in this
+                        program), if its cardinality, i.e. the number of
+                        possibles values across all row, is lower than this
+                        cutoff, then it's a low-caridnaltiy tag, and each of
+                        its possible value would be transformed into a
+                        separate binary column. Otherwise, it is a high-
+                        cardinality tag and all of its values in one row would
+                        be simply concatenated to avoid making too many
+                        columns
   -o OUTPUT, --output OUTPUT
                         the output filename, if not specified, would just set
                         it to be the same as the input but with extension
@@ -49,8 +60,7 @@ optional arguments:
                         pkl means python pickle format, which would results in
                         much faster IO (recommended)
   -t NUM_CPUS, --num-cpus NUM_CPUS
-                        number of cpus for parallel processing, default to all
-                        cpus available
+                        number of cpus for parallel processing, default to 1
 ```
 
 ### Comparison of GTF versions
@@ -89,27 +99,6 @@ https://www.gencodegenes.org/releases/).
 For all available transcript types, please see
 https://gitlab.com/zyxue/gtf2csv-csvs/tree/master/figs.
 
-**More detailed comparison of a few select versions**
-
-The early version of annotation, Homo_sapiens.GRCh37.75.pkl, has many more genes
-and transcripts than later ones, (~14% and ~9.7% increase in numbers for protein
-coding gene and transcripts, respectively when compared to
-Homo_sapiens.GRCh38.93.pkl. Below are more details. For the generation of the
-table of figures, please refere to this
-[notebook](./notebooks/Comparison-of-GTF-versions.ipynb).
-
-
-| index | version                    | num_protein_coding_genes | num_protein_coding_transcripts | num_all_genes | num_all_transcripts |
-|-------|----------------------------|--------------------------|--------------------------------|---------------|---------------------|
-| 0     | Homo_sapiens.GRCh37.75.pkl | 22810                    | 90274                          | 63677         | 215171              |
-| 1     | Homo_sapiens.GRCh37.87.pkl | 20356                    | 81787                          | 57905         | 196502              |
-| 2     | Homo_sapiens.GRCh38.92.pkl | 19912                    | 82307                          | 58395         | 203743              |
-| 3     | Homo_sapiens.GRCh38.93.pkl | 19912                    | 82307                          | 58395         | 203743              |
-| 4     | gencode.v28.annotation.pkl | 19901                    | 82335                          | 58381         | 203836              |
-
-<img src="https://raw.githubusercontent.com/zyxue/gtf2csv/master/gtf-comparison.jpg" alt="" width=600>
-
-
 ### Conversion strategy
 
 The parsing of GTF is based on GTF/GFF2 format specified at
@@ -121,23 +110,44 @@ http://uswest.ensembl.org/info/website/upload/gff.html.
 2. convert all columns but the attribute column to csv.
 3. Deal with attribute column.
 
-The first step is straightforward, so is the second step as GTF is tab-separated
-fairly close to a csv file except the attribute column.
+The first two steps are straightforward. Note that GTF is tab-separated, so it
+is very similar to a csv file.
 
-The attribute column contain a list of tag-value pairs, so I decided to convert
-each tag into its own column under the name ([tag]:[value]). Some atrribute tag
-could appear multiple times per row (e.g. tag, ont)
+The attribute column is a bit more tricky to deal with. Each row of the
+attribute column contains a list of tag-value pairs. In principle, every tag
+could form its own column. However, some tags could appear multiple times within
+one row. A few observed such tags include:
+
+* `tag` tag as in [Ensembl human gtf files](ftp://ftp.ensembl.org/pub/release-93/gtf/homo_sapiens/)
+* `ont` tag as in [GENCODE human gtf files](https://www.gencodegenes.org/releases/current.html)
+* `ccds_id` as in [Ensembl for Mus_musculus related gtf files](ftp://ftp.ensembl.org/pub/release-93/gtf/mus_musculus_129s1svimj/)
+
+I named these tags are called multiplicity tags, and they are further classified
+into two types depending on the number of possible unique values they have. For
+those with a low number of possible values, thus low cardinality, each of their
+possible values would be transformed into its own binary column under the name
+([tag]:[value]). For example, for the follow `tag` tags,
 
 ```
 ... exon_id "ENSE00001637883"; tag "cds_end_NF"; tag "mRNA_end_NF";
 ```
 
-They would be converted to binary (1/0) columns with the tag name prefixing the
-column name. E.g. the tag values from the above example would be stored in two
-columns, respectively:
+It would converted into values in two binary (1/0) columns with column names
+`tag:cds_end_NF` and `tag:mRNA_end_NF`. 
 
-1. `tag:cds_end_NF`
-1. `tag:mRNA_end_NF`
+For multiplicity tags with a high-cardinality (e.g. `ccds_id` with a cardinality
+over 20k), converting each value into its own column would result into to many
+columns and consume to much memory, thus the possible values would simply be
+concatenated. For example, the following entry
+
+```
+... ccds_id "CCDS14805"; ccds_id "CCDS78538"; ccds_id "CCDS78539"; ...
+```
+
+would become `CCDS14805,CCDS78538,CCDS78539` under the `ccds_id` column.
+
+The cutoff between high-cardinality and low-cardinality tags could be specified
+via `-c/--cardinality-cutoff` parameter.
 
 
 ### Other resources
