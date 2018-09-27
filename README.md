@@ -5,8 +5,9 @@ load it into pandas dataframe for slicing and dicing.
 
 ### Download 
 
-I have converted some GTF files that are available for download at
-https://gitlab.com/zyxue/gtf2csv-csvs.
+I have converted multiple versions of gtf files for the human genome, and the
+gtf files across multiple species in Ensembl release 93 to csv files, which are
+available at https://gitlab.com/zyxue/gtf2csv-csvs.
 
 Example:
 
@@ -28,7 +29,6 @@ require python>=3.6
 pip install git+https://github.com/zyxue/gtf2csv.git#egg=gtf2csv
 
 gtf2csv --gtf [gtf file]
-
 ```
 
 ```
@@ -63,18 +63,17 @@ optional arguments:
                         number of cpus for parallel processing, default to 1
 ```
 
-### Comparison of GTF versions
+### Comparison of multiple human gtf versions
 
-I converted most ensemebl gtf releases and compared them from different aspects
-([notebook](https://github.com/zyxue/gtf2csv/blob/master/notebooks/Comparison-of-GTF-versions-all-Ensembl-releases.ipynb)).
+See this notebook
+[Comparison-of-human-gtfs.ipynb](https://github.com/zyxue/gtf2csv/blob/master/notebooks/Comparison-of-human-gtfs.ipynb)
+for details.
 
 **Number of protein coding genes**
 
-A gene is considered protein coding if at least one its transcripts is protein
-coding. The number has been relatively stable around 20k for a long time.
+This number has been relatively stable around 20k since early days.
 
-
-<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/figs/num_protein_coding_genes.jpg" alt width="100%">
+<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/human/figs/num_protein_coding_genes.jpg" alt width="100%">
 
 
 Different colors indicate major genome update, i.e. GRCh36/hg18 (blue),
@@ -86,18 +85,32 @@ GRCh37/hg19 (red), GRCh38/hg38 (yellow).
 Considering the current number is 80k, so on average a gene has 4 protein coding
 transcripts.
 
-<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/figs/transcripts/protein_coding_transcripts.jpg" alt width="100%">
+<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/human/figs/transcripts/protein_coding_transcripts.jpg" alt width="100%">
 
 
 **Number of lincRNA**
 
-<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/figs/transcripts/lincRNA_transcripts.jpg" alt width="100%">
+<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/human/figs/transcripts/lincRNA_transcripts.jpg" alt width="100%">
 
 As seen, lincRNA hasn't been annotated until around GRCh37.57 (2010-03 based on
 https://www.gencodegenes.org/releases/).
 
-For all available transcript types, please see
-https://gitlab.com/zyxue/gtf2csv-csvs/tree/master/figs.
+For plots of other available transcript types, please see
+[here](https://gitlab.com/zyxue/gtf2csv-csvs/tree/master/human/figs/transcripts).
+
+
+### Comparison of gtf files across different species
+
+Here is a scatter plot of number of protein coding genes vs protein coding
+transcripts for different species. Each dot is a species, but only those common
+ones are annotated. For bar plots similar to above, see
+[here](https://gitlab.com/zyxue/gtf2csv-csvs/tree/master/ensembl-release-93/figs/transcripts).
+
+<img src="https://gitlab.com/zyxue/gtf2csv-csvs/raw/master/ensembl-release-93/figs/num_protein_coding_genes_vs_transcripts.jpg" alt width="100%">
+
+Details of plot generation can be found at
+[Comparison-of-gtfs-across-species.ipynb](https://github.com/zyxue/gtf2csv/blob/master/notebooks/Comparison-of-gtfs-across-species.ipynb).
+
 
 ### Conversion strategy
 
